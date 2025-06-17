@@ -1,3 +1,5 @@
+'use strict';
+
 function gameBoard() {
     const rows = 3;
     const columns = 3;
@@ -76,7 +78,7 @@ function boardControl(row, column) {
         }
     ];
 
-    const board = gameBoard();
+    let board = gameBoard();
     let activePlayer = players[0];
 
     const switchPlayerTurn = () => {
@@ -101,25 +103,42 @@ function boardControl(row, column) {
             const [a, b, c] = winConditions[i];
 
             if (boardValues[a] !== '[ ]' && boardValues[a] === boardValues[b] && boardValues[b] === boardValues[c]){
-                console.log(`${boardValues[a]} is the winner!`);
-                return true
+                return { winningSymbol:boardValues[a] };
             }
         }
         return null;
     };
 
+    const checkForDraw = (board) => {
+        const allCells = board.boardState().flat();
+        return allCells.every(cell => cell.checkCellState());
+    };
+
     const playRound = (row, column) => {
-        symbol = activePlayer.symbol;
+        const symbol = activePlayer.symbol;
 
             if (board.addSymbol(row, column, symbol)) {
-                if (!checkForWin(board)){
+                const winResult = checkForWin(board);
+                if (winResult){
+                    console.log(`${activePlayer.name} with the ${winResult.winningSymbol} symbol has won!`)
+                } else if (checkForDraw(board)) {
+                    board.printBoard();
+                    console.log('Draw.')
+                } else {
                     switchPlayerTurn();
                     board.printBoard();
                 }
-            } 
+            }
     };
-    return { playRound }
+
+    const restartGame = () => {
+        console.log('---NEW GAME---');
+        activePlayer = players[0];
+        board = gameBoard();
+    };
+
+    return { playRound, restartGame }
 };
-    
-console.log(gameBoard().printBoard())
+
 const game = boardControl();
+
