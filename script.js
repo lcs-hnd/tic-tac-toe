@@ -83,16 +83,43 @@ function boardControl(row, column) {
        activePlayer = (activePlayer === players[0]) ? players[1] : players[0];
     };
 
+    const checkForWin = (board) => {
+        const winConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [6, 4, 2]
+        ];
+        
+        const boardValues = board.boardState().flat().map(cell => cell.checkCellSymbol());
+
+        for (let i = 0; i < winConditions.length; i++) {
+            const [a, b, c] = winConditions[i];
+
+            if (boardValues[a] !== '[ ]' && boardValues[a] === boardValues[b] && boardValues[b] === boardValues[c]){
+                console.log(`${boardValues[a]} is the winner!`);
+                return true
+            }
+        }
+        return null;
+    };
+
     const playRound = (row, column) => {
         symbol = activePlayer.symbol;
 
-        if (board.addSymbol(row, column, symbol)) {
-            switchPlayerTurn();
-            board.printBoard();
-        } 
+            if (board.addSymbol(row, column, symbol)) {
+                if (!checkForWin(board)){
+                    switchPlayerTurn();
+                    board.printBoard();
+                }
+            } 
     };
     return { playRound }
-}
-
+};
+    
 console.log(gameBoard().printBoard())
 const game = boardControl();
